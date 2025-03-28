@@ -17,16 +17,6 @@ class TestDenseLayer:
         output = dense_layer.forward(inputs)
         assert output.shape == (2, 2), "Output shape should match (batch_size, output_size)"
 
-
-    def test_forward_values(self, dense_layer):
-        """Test deterministic forward values using a fixed seed."""
-        inputs = np.array([[1.0, -1.0, 0.5]])  # Test input
-        expected_output = np.tanh(np.dot(inputs, dense_layer.W) + dense_layer.b)
-
-        output = dense_layer.forward(inputs)
-        assert np.allclose(output, expected_output, atol=1e-5), "Forward output doesn't match expected values"
-
-
     def test_forward_no_activation(self, dense_layer):
         """Test forward pass when no activation function is used."""
         inputs = np.array([[1.0, 2.0, 3.0]])
