@@ -17,7 +17,7 @@ class TestDenseLayer:
         output = dense_layer.forward(inputs)
         assert output.shape == (2, 2), "Output shape should match (batch_size, output_size)"
 
-    def test_forward_no_activation(self, dense_layer):
+    def test_forward(self, dense_layer):
         """Test forward pass when no activation function is used."""
         inputs = np.array([[1.0, 2.0, 3.0]])
         expected_output = np.dot(inputs, dense_layer.W) + dense_layer.b

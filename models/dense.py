@@ -20,7 +20,10 @@ class DenseLayer(Layer):
         return out
 
     def grad_x(self, input_data):
-        pass
+        J = np.empty((input_data.shape[0], self.output_dim, self.input_dim))
+        for b in range(input_data.shape[0]):
+            J[b] = self.W.T
+        return  J
 
     def grad_b(self, input_data):
         pass
