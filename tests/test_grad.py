@@ -2,7 +2,8 @@ import pytest
 import inspect
 import numpy as np
 import models
-
+import losses
+from losses import CrossEntropy
 
 LAYER_PARAMS = {
     "DenseLayer": {"input_dim": 3, "output_dim": 4},
@@ -30,6 +31,10 @@ def layers():
             instance = cls(**params)
             layers.append(instance)
     return layers
+
+@pytest.fixture
+def net():
+    return models.Network([models.DenseLayer(3, 10), models.ReLU(), models.DenseLayer(10, 3), models.Softmax()], loss=losses.CrossEntropy())
 
 def test_grad_shape(layers):
     x = np.random.randn(4, 3)
@@ -72,3 +77,43 @@ def test_grad(layers):
             print(f"Analytical grad:\n{jacobian}")
             print(f"Numerical grad:\n{numeric_jac}")
         assert np.allclose(jacobian, numeric_jac, atol=eps)
+
+def numerical_diff_net(net, x, labels):
+    eps = 1e-5
+    right_answer = []
+    for i in range(len(x[0])):
+        delta = np.zeros(len(x[0]))
+        delta[i] = eps
+        diff = (net.calculate_loss(x + delta, labels) - net.calculate_loss(x-delta, labels)) / (2*eps)
+        right_answer.append(diff)
+    return np.array(right_answer).T
+
+def test_loss(net=CrossEntropy()):
+    x = np.array([[1, 2, 3], [2, 3, 4]])
+    labels = np.array([[0.3, 0.2, 0.5], [0.3, 0.2, 0.5]])
+    num_grad = numerical_diff_net(net, x, labels)
+    grad = net.grad_x(x, labels)
+    if np.allclose(grad, num_grad, atol=1e-2):
+        print('Test PASSED')
+    else:
+        print('Something went wrong!')
+        print('Numerical grad is')
+        print(num_grad)
+        print('Your gradiend is ')
+        print(grad)
+    assert np.allclose(grad, num_grad, atol=1e-2)
+
+def test_net(net):
+    x = np.array([[1, 2, 3], [2, 3, 4]])
+    labels = np.array([[0.3, 0.2, 0.5], [0.3, 0.2, 0.5]])
+    num_grad = numerical_diff_net(net, x, labels)
+    grad = net.grad_x(x, labels)
+    if np.allclose(grad, num_grad, atol=1e-2):
+        print('Test PASSED')
+    else:
+        print('Something went wrong!')
+        print('Numerical grad is')
+        print(num_grad)
+        print('Your gradiend is ')
+        print(grad)
+    assert np.allclose(grad, num_grad, atol=1e-2)
