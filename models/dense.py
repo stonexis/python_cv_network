@@ -3,9 +3,11 @@ from models.base_layer import Layer
 
 class DenseLayer(Layer):
     def __init__(self, input_dim, output_dim, W_init=None, b_init=None):
+        np.random.seed(42)
         self.name = 'Dense'
         self.input_dim = input_dim
         self.output_dim = output_dim
+        self.preactivation = None
         if W_init is None or b_init is None:
             self.W = np.random.random((input_dim, output_dim))
             self.b = np.zeros(output_dim, 'float32')
@@ -14,12 +16,15 @@ class DenseLayer(Layer):
             self.b = b_init
 
     def forward(self, input_data):
+        self.preactivation = input_data
         out = np.empty((input_data.shape[0], self.output_dim))
         for b in range(input_data.shape[0]):
             out[b] = input_data[b] @ self.W + self.b
         return out
 
-    def grad_x(self, input_data):
+    def grad_x(self, input_data=None):
+        if input_data is None:
+            input_data = self.preactivation
         J = np.empty((input_data.shape[0], self.output_dim, self.input_dim))
         for b in range(input_data.shape[0]):
             J[b] = self.W.T

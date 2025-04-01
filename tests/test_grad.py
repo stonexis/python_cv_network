@@ -88,7 +88,7 @@ def numerical_diff_net(net, x, labels):
         right_answer.append(diff)
     return np.array(right_answer).T
 
-def test_loss(net=CrossEntropy()):
+def test_net(net):
     x = np.array([[1, 2, 3], [2, 3, 4]])
     labels = np.array([[0.3, 0.2, 0.5], [0.3, 0.2, 0.5]])
     num_grad = numerical_diff_net(net, x, labels)
@@ -103,7 +103,8 @@ def test_loss(net=CrossEntropy()):
         print(grad)
     assert np.allclose(grad, num_grad, atol=1e-2)
 
-def test_net(net):
+
+def test_loss(net=CrossEntropy()):
     x = np.array([[1, 2, 3], [2, 3, 4]])
     labels = np.array([[0.3, 0.2, 0.5], [0.3, 0.2, 0.5]])
     num_grad = numerical_diff_net(net, x, labels)

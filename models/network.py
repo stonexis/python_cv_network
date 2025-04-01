@@ -13,7 +13,17 @@ class Network(object):
         return self.predict(input_data)
 
     def grad_x(self, input_data, labels):
-        pass
+        self.calculate_loss(input_data, labels)
+        grad_L = self.loss.grad_x()
+        jacobian_chain_old = np.repeat(grad_L, repeats=self.layers[-1].grad_x().shape[0], axis=0)
+        print("SHAPE L", jacobian_chain_old.shape)
+        for layer in reversed(self.layers):
+            print("SHAPE", layer.grad_x().shape)
+            jacobian_chain_new = np.empty((jacobian_chain_old.shape[0], layer.grad_x().shape[2]))
+            for b in range(jacobian_chain_old.shape[0]):
+                jacobian_chain_new[b] = jacobian_chain_old[b] @ layer.grad_x()[b]
+            jacobian_chain_old = jacobian_chain_new
+        return jacobian_chain_old.mean(axis=0)
 
     def grad_param(self, input_data, labels):
         pass
