@@ -31,10 +31,27 @@ class DenseLayer(Layer):
         return  J
 
     def grad_b(self, input_data):
-        pass
+        self.forward(input_data)
+        batch_size = input_data.shape[0]
+        J = np.empty((batch_size, self.output_dim, self.output_dim))
+        for b in range(batch_size):
+            J[b] = np.eye(self.output_dim)
+        return J
 
     def grad_W(self, input_data):
-        pass
+        self.forward(input_data)
+        batch_size = input_data.shape[0]
+        J = np.empty((batch_size, self.output_dim, self.output_dim * self.input_dim))
+        for b in range(batch_size):
+            for i in range(self.output_dim):
+                x_index = 0
+                for j in range(self.output_dim * self.input_dim):
+                    if (j % self.output_dim) == i:
+                        J[b, i, j] = input_data[b, x_index]
+                        x_index += 1
+                    else:
+                        J[b, i, j] = 0
+        return J
 
     def update_W(self, grad, learning_rate):
         self.W -= learning_rate * np.mean(grad, axis=0).reshape(self.W.shape)
